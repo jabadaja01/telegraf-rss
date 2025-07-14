@@ -29,6 +29,6 @@ jobs:
         run: |
           git config user.name "GitHub Action"
           git config user.email "action@github.com"
-          git add telegraf_najnovije.xml
-          git commit -m "Auto-update RSS feed"
+          git add telegraf_najnovije.xml || echo "No file to add"
+          git diff --cached --quiet && echo "No changes to commit" || git commit -m "Auto-update RSS feed"
           git push
