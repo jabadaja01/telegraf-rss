@@ -25,7 +25,7 @@ jobs:
       - name: Generate RSS XML
         run: python docs/telegraf_rss_save_to_docs.py
 
-      - name: Commit and push RSS file
+           - name: Commit and push RSS file
         env:
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
