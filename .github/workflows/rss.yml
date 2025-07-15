@@ -2,8 +2,8 @@ name: Generate RSS feed
 
 on:
   schedule:
-    - cron: '0 */6 * * *'
-  workflow_dispatch:
+    - cron: '0 */6 * * *'  # pokreće se svakih 6 sati
+  workflow_dispatch:       # ručno pokretanje
 
 jobs:
   build:
@@ -12,13 +12,11 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.11'
+          python-version: '3.x'
 
       - name: Install dependencies
         run: |
@@ -31,7 +29,7 @@ jobs:
         run: |
           git config user.name "GitHub Action"
           git config user.email "action@github.com"
-          git pull --rebase origin main
+          git pull --rebase
           git add docs/telegraf_najnovije.xml || echo "No file to add"
           git diff --cached --quiet && echo "No changes to commit" || git commit -m "Auto-update RSS feed"
-          git push origin main
+          git push
