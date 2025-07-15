@@ -2,8 +2,8 @@ name: Generate RSS feed
 
 on:
   schedule:
-    - cron: '0 */6 * * *'  # Pokreće se svakih 6 sati
-  workflow_dispatch:        # Možeš ga pokrenuti i ručno
+    - cron: '0 */6 * * *'  # pokreće se svakih 6 sati
+  workflow_dispatch:
 
 jobs:
   build:
@@ -16,20 +16,20 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.x'
+          python-version: '3.11'
 
       - name: Install dependencies
         run: |
           pip install beautifulsoup4 requests
 
       - name: Generate RSS XML
-        run: python generate_rss.py
+        run: python docs/telegraf_rss_save_to_docs.py
 
       - name: Commit and push RSS file
         run: |
           git config user.name "GitHub Action"
           git config user.email "action@github.com"
-          git add telegraf_najnovije.xml || echo "No file to add"
+          git pull origin main --rebase || true
+          git add docs/telegraf_najnovije.xml || echo "No file to add"
           git diff --cached --quiet && echo "No changes to commit" || git commit -m "Auto-update RSS feed"
-          git pull --rebase
-          git push
+          git push origin main || echo "Push failed"
