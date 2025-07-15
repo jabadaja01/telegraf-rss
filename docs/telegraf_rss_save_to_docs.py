@@ -1,64 +1,71 @@
-
-from playwright.sync_api import sync_playwright
+import os
 from bs4 import BeautifulSoup
 from datetime import datetime
-import xml.etree.ElementTree as ET
 
 def generate_rss():
-    with sync_playwright() as p:
-        browser = p.chromium.launch(headless=True)
-        page = browser.new_page()
-        page.goto("https://aero.telegraf.rs/najnovije-vesti", timeout=60000)
-        page.wait_for_selector("a:has(h2)", timeout=15000)
-        links = page.query_selector_all("a:has(h2)")
-        items = []
+    # Primer podataka, zameni sa stvarnim
+    title = "Telegraf.rs Najnovije"
+    link = "https://aero.telegraf.rs/najnovije-vesti"
+    description = "Najnovije vesti sa sajta Telegraf.rs"
+    language = "sr"
 
-        for link in links[:10]:  # uzimamo prvih 10 vesti
-            href = link.get_attribute("href")
-            title_element = link.query_selector("h2")
-            title = title_element.inner_text().strip() if title_element else "Bez naslova"
+    items = [
+        {
+            "title": "Naslov vesti 1",
+            "link": "https://aero.telegraf.rs/vest1",
+            "description": "Opis vesti 1",
+            "pubDate": datetime.now().strftime("%a, %d %b %Y %H:%M:%S +0200"),
+        },
+        # Dodaj više vesti ovde
+    ]
 
-            if not href.startswith("http"):
-                href = "https://aero.telegraf.rs" + href
+    rss = BeautifulSoup(features="xml")
+    rss_tag = rss.new_tag("rss", version="2.0")
+    channel_tag = rss.new_tag("channel")
 
-            # Novi browser kontekst i stranica
-            context = browser.new_context()
-            article = context.new_page()
-            article.goto(href)
-            html = article.content()
-            soup = BeautifulSoup(html, "html.parser")
+    title_tag = rss.new_tag("title")
+    title_tag.string = title
+    channel_tag.append(title_tag)
 
-            # Pronađi meta tag za datum
-            meta = soup.find("meta", {"property": "article:published_time"})
-            if meta:
-                raw_date = meta["content"]
-                pub_date = datetime.fromisoformat(raw_date.replace("Z", "+00:00"))
-                pub_date_rss = pub_date.strftime("%a, %d %b %Y %H:%M:%S %z")
-            else:
-                pub_date_rss = datetime.now().strftime("%a, %d %b %Y %H:%M:%S %z")
+    link_tag = rss.new_tag("link")
+    link_tag.string = link
+    channel_tag.append(link_tag)
 
-            items.append((title, href, pub_date_rss))
-            article.close()
-            context.close()
+    desc_tag = rss.new_tag("description")
+    desc_tag.string = description
+    channel_tag.append(desc_tag)
 
-        # RSS struktura
-        rss = ET.Element("rss", version="2.0")
-        channel = ET.SubElement(rss, "channel")
-        ET.SubElement(channel, "title").text = "Telegraf Aero - Najnovije vesti"
-        ET.SubElement(channel, "link").text = "https://aero.telegraf.rs/najnovije-vesti"
-        ET.SubElement(channel, "description").text = "Validne i ažurne vesti sa sajta Telegraf Aero"
-        ET.SubElement(channel, "language").text = "sr"
+    lang_tag = rss.new_tag("language")
+    lang_tag.string = language
+    channel_tag.append(lang_tag)
 
-        for title, link, pub_date in items:
-            item = ET.SubElement(channel, "item")
-            ET.SubElement(item, "title").text = title
-            ET.SubElement(item, "link").text = link
-            ET.SubElement(item, "description").text = title
-            ET.SubElement(item, "pubDate").text = pub_date
+    for item in items:
+        item_tag = rss.new_tag("item")
 
-        tree = ET.ElementTree(rss)
-        tree.write("docs/telegraf_valid_feed.xml", encoding="utf-8", xml_declaration=True)
-        print("✅ RSS generisan kao 'telegraf_valid_feed.xml'.")
+        i_title = rss.new_tag("title")
+        i_title.string = item["title"]
+        item_tag.append(i_title)
+
+        i_link = rss.new_tag("link")
+        i_link.string = item["link"]
+        item_tag.append(i_link)
+
+        i_desc = rss.new_tag("description")
+        i_desc.string = item["description"]
+        item_tag.append(i_desc)
+
+        i_date = rss.new_tag("pubDate")
+        i_date.string = item["pubDate"]
+        item_tag.append(i_date)
+
+        channel_tag.append(item_tag)
+
+    rss_tag.append(channel_tag)
+    rss.append(rss_tag)
+
+    # ✅ OVDE SE MENJA NAZIV FAJLA
+    with open("docs/telegraf_najnovije.xml", "w", encoding="utf-8") as f:
+        f.write(str(rss.prettify()))
 
 if __name__ == "__main__":
     generate_rss()
