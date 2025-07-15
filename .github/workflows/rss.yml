@@ -25,11 +25,15 @@ jobs:
       - name: Generate RSS XML
         run: python docs/telegraf_rss_save_to_docs.py
 
-      - name: Commit and push RSS file
+         - name: Commit and push RSS file
+        env:
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           git config user.name "GitHub Action"
           git config user.email "action@github.com"
+          git remote set-url origin https://x-access-token:${TOKEN}@github.com/${{ github.repository }}
           git pull --rebase
           git add docs/telegraf_najnovije.xml || echo "No file to add"
           git diff --cached --quiet && echo "No changes to commit" || git commit -m "Auto-update RSS feed"
-          git push
+          git push origin main
+
