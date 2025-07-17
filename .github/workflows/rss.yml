@@ -12,7 +12,7 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # važno za git pull
+          fetch-depth: 0  # pun klon omogućava git pull
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -29,7 +29,7 @@ jobs:
         run: |
           git config --global user.name 'github-actions'
           git config --global user.email 'github-actions@github.com'
-          git pull --rebase
+          git pull origin main --allow-unrelated-histories
           git add docs/telegraf_najnovije.xml
           git commit -m "Update RSS feed" || echo "No changes to commit"
           git push
