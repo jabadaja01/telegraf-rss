@@ -1,12 +1,12 @@
 name: Generate RSS feed
 
 on:
-  workflow_dispatch: # omogućava ručno pokretanje
+  workflow_dispatch: # omogućava ručno pokretanje workflow-a
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 3  # ako se zaglavi, prekida automatski
+    timeout-minutes: 3  # automatski prekid ako traje predugo
 
     steps:
       - name: Checkout repo
@@ -25,8 +25,4 @@ jobs:
 
       - name: Commit RSS
         run: |
-          git config --global user.name 'github-actions'
-          git config --global user.email 'github-actions@github.com'
-          git add docs/telegraf_najnovije.xml
-          git commit -m "Update RSS feed" || echo "No changes to commit"
-          git push
+          git config
