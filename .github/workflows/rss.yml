@@ -9,10 +9,11 @@ jobs:
     timeout-minutes: 3
 
     steps:
-      - name: Checkout repo
+      - name: Checkout repo (rss branch)
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # pun klon omogućava git pull
+          fetch-depth: 0
+          ref: rss
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -25,11 +26,10 @@ jobs:
       - name: Run RSS generator
         run: python docs/telegraf_rss_save_to_docs.py
 
-      - name: Commit RSS
+      - name: Commit RSS to rss branch
         run: |
           git config --global user.name 'github-actions'
           git config --global user.email 'github-actions@github.com'
-          git pull origin main --allow-unrelated-histories
           git add docs/telegraf_najnovije.xml
           git commit -m "Update RSS feed" || echo "No changes to commit"
-          git push
+          git push origin rss
