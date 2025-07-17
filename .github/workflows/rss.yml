@@ -1,16 +1,18 @@
 name: Generate RSS feed
 
 on:
-  workflow_dispatch: # omogućava ručno pokretanje
+  workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 3  # zaštita da se ne zaglavi
+    timeout-minutes: 3
 
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # važno za git pull
 
       - name: Set up Python
         uses: actions/setup-python@v5
